@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f3f3f3; }
+    .card { margin: 10px auto; padding: 15px; max-width: 350px; background: #fff; border-radius: 10px; box-shadow: 0 3px 6px rgba(0,0,0,.1); }
+    input, button { padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #4CAF50; color: #fff; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .weather-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+  </style>
+</head>
+<body>
+  <h2>🌤️ Weather App</h2>
+  <div class="card">
+    <input id="city" placeholder="Enter city">
+    <button onclick="getWeather()">Search</button>
+    <div id="result"></div>
+  </div>
+
+  <h3>🌍 Default Cities</h3>
+  <div id="defaultCities" class="weather-container"></div>
+
+  <script>
+    const apiKey = "YOUR_API_KEY"; 
+    const cities = ["Kolkata","Delhi","Mumbai","Chennai","Bengaluru","Hyderabad"];
+
+    async function getWeather(city=null){
+      city = city || document.getElementById("city").value.trim();
+      if(!city) return;
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
+      try{
+        const res = await fetch(url), data = await res.json();
+        if(data.cod!==200) return show("❌ City not found!");
+        const html = `<div class="card">
+          <h3>${data.name}, ${data.sys.country}</h3>
+          <p>🌡️ ${data.main.temp}°C | 💧 ${data.main.humidity}% | 💨 ${(data.wind.speed*3.6).toFixed(1)} km/h</p>
+          <p>${data.weather[0].description}</p></div>`;
+        if(arguments.length) defaultCities.innerHTML += html; 
+        else result.innerHTML = html; 
+      }catch{ show("⚠️ Error fetching data!"); }
+    }
+    function show(msg){ result.innerHTML = msg; }
+    window.onload=()=>cities.forEach(c=>getWeather(c));
+  </script>
+</body>
+</html>
